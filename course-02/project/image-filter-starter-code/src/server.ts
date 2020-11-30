@@ -9,10 +9,31 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
   // Set the network port
   const port = process.env.PORT || 8082;
+
+  const router = express.Router();
   
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
-
+ 
+  router.use(function (req, res, next) {
+    res.on('finish', function(){
+        if (req.route === "/filtered")
+        console.log("Deleting local files");
+        const fs = require('fs')
+        const dir = __dirname+'/tmp/';
+        const files = fs.readdirSync(dir)
+        let localFilesPaths: Array<string>
+        for (const file of files) {
+            console.log(dir+ file  );
+            const filePath = dir + file;
+            deleteLocalFiles([filePath]);  
+        }
+        //deleteLocalFiles(localFilesPaths);
+      });
+    next()
+  })
+  
+  
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   // GET /filteredimage?image_url={{URL}}
   // endpoint to filter an image from a public url.
@@ -28,7 +49,11 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
-
+    router.get("/filteredimage", async (req, res) => {
+        let filteredImagePath = await filterImageFromURL(req.query.image_url);
+        
+        res.sendFile(filteredImagePath);
+    });
   //! END @TODO1
   
   // Root Endpoint
@@ -37,6 +62,7 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
     res.send("try GET /filteredimage?image_url={{}}")
   } );
   
+  app.use(router);
 
   // Start the Server
   app.listen( port, () => {

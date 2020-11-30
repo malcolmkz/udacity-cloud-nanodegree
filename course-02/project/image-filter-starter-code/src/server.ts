@@ -19,7 +19,7 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
     res.on('finish', function(){
         console.log("DEBUG : In the middleware");
         const fs = require('fs')
-        const dir = __dirname+'/tmp/';
+        const dir = __dirname+'/util/tmp/';
         const files = fs.readdirSync(dir)
         console.log("DEBUG : Working directory is " + dir);
         console.log(files);
@@ -50,9 +50,17 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
   /**************************************************************************** */
     router.get("/filteredimage", async (req, res) => {
-        let filteredImagePath = await filterImageFromURL(req.query.image_url);
+      let image_url = req.query.image_url;
+      let filteredImagePath;
+      if (!image_url) {
+        
+         res.status(404).send("ERROR : Cannot find image !");
+       }
+       else {
+        filteredImagePath = await filterImageFromURL(image_url);
         console.log("DEBUG : Sending the filtered image : " + filteredImagePath);
         res.sendFile(filteredImagePath);
+       }        
     });
   //! END @TODO1
   

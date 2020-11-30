@@ -17,14 +17,14 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
  
   router.use(function (req, res, next) {
     res.on('finish', function(){
-        if (req.route === "/filtered")
-        console.log("Deleting local files");
+        console.log("DEBUG : In the middleware");
         const fs = require('fs')
         const dir = __dirname+'/tmp/';
         const files = fs.readdirSync(dir)
-        let localFilesPaths: Array<string>
+        console.log("DEBUG : Working directory is " + dir);
+        console.log(files);
         for (const file of files) {
-            console.log(dir+ file  );
+            console.log("DEBUG : Deleting local files: " + dir + file);
             const filePath = dir + file;
             deleteLocalFiles([filePath]);  
         }
@@ -51,7 +51,7 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   /**************************************************************************** */
     router.get("/filteredimage", async (req, res) => {
         let filteredImagePath = await filterImageFromURL(req.query.image_url);
-        
+        console.log("DEBUG : Sending the filtered image : " + filteredImagePath);
         res.sendFile(filteredImagePath);
     });
   //! END @TODO1

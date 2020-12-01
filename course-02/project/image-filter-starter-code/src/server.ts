@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
@@ -15,17 +15,17 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
  
-  router.use(function (req, res, next) {
+  router.use(function (req:Request, res:Response, next:NextFunction) {
     res.on('finish', function(){
         console.log("DEBUG : In the middleware");
         const fs = require('fs')
-        const dir = __dirname+'/util/tmp/';
+        const dir:string = __dirname+'/util/tmp/';
         const files = fs.readdirSync(dir)
         console.log("DEBUG : Working directory is " + dir);
         console.log(files);
         for (const file of files) {
             console.log("DEBUG : Deleting local files: " + dir + file);
-            const filePath = dir + file;
+            const filePath:string = dir + file;
             deleteLocalFiles([filePath]);  
         }
         //deleteLocalFiles(localFilesPaths);
@@ -49,11 +49,10 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
-    router.get("/filteredimage", async (req, res) => {
-      let image_url = req.query.image_url;
-      let filteredImagePath;
+    router.get("/filteredimage", async (req: Request, res: Response) => {
+      let image_url:string = req.query.image_url;
+      let filteredImagePath:string;
       if (!image_url) {
-        
          res.status(404).send("ERROR : Cannot find image !");
        }
        else {
@@ -66,7 +65,7 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   
   // Root Endpoint
   // Displays a simple message to the user
-  app.get( "/", async ( req, res ) => {
+  app.get( "/", async ( req:Request, res:Response ) => {
     res.send("try GET /filteredimage?image_url={{}}")
   } );
   
